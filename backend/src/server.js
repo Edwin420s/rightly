@@ -8,13 +8,23 @@ const startServer = async () => {
   try {
     await connectMongo();
     
+    // Start workers
     require('./workers/relayerWorker');
     require('./workers/indexerWorker');
     
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       logger.info(`Rightly backend server running on port ${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV}`);
+      logger.info(`Health check: http://localhost:${PORT}/health`);
     });
+
+    process.on('SIGTERM', () => {
+      logger.info('SIGTERM received, shutting down gracefully');
+      server.close(() => {
+        logger.info('Process terminated');
+      });
+    });
+
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);
