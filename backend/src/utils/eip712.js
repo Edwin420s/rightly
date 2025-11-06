@@ -26,12 +26,17 @@ async function recoverSigner(domainParams, message, signature) {
     return recovered;
   } catch (error) {
     console.error('Signature recovery error:', error);
-    throw new Error('Invalid signature');
+    throw new Error('Invalid signature format');
   }
+}
+
+function createSignMessage(address, nonce) {
+  return `Welcome to Rightly!\n\nPlease sign this message to verify your ownership of the wallet address.\n\nAddress: ${address}\nNonce: ${nonce}\n\nThis request will not trigger a blockchain transaction or cost any gas fees.`;
 }
 
 module.exports = { 
   getDomain, 
   buyTypes, 
-  recoverSigner 
+  recoverSigner,
+  createSignMessage
 };

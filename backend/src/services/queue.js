@@ -2,7 +2,8 @@ const { Queue, Worker } = require('bullmq');
 const IORedis = require('ioredis');
 
 const connection = new IORedis(process.env.REDIS_URL, {
-  maxRetriesPerRequest: null
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false
 });
 
 const relayerQueue = new Queue('relayerQueue', { 
@@ -22,7 +23,8 @@ const indexerQueue = new Queue('indexerQueue', {
   connection,
   defaultJobOptions: {
     removeOnComplete: 100,
-    removeOnFail: 1000
+    removeOnFail: 1000,
+    attempts: 3
   }
 });
 
