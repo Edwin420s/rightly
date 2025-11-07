@@ -23,16 +23,14 @@ export const apiClient = {
     return response.data
   },
 
-  // License endpoints
-  getLicenses: async (address) => {
-    const response = await api.get(`/licenses?address=${address}`)
+  // Pin file to IPFS via backend
+  pinClip: async ({ filename, dataBase64 }) => {
+    const response = await api.post('/clips/pin', { filename, dataBase64 })
     return response.data
   },
 
-  getLicense: async (licenseId) => {
-    const response = await api.get(`/licenses/${licenseId}`)
-    return response.data
-  },
+  // License endpoints (reserved for future; receipts used instead)
+  // getLicenses and getLicense may be implemented later on backend
 
   // Relayer endpoints
   submitBuyIntent: async (buyData) => {
@@ -46,9 +44,9 @@ export const apiClient = {
     return response.data
   },
 
-  // Nonce endpoints
+  // Nonce endpoint (matches backend POST /api/auth/nonce)
   getNonce: async (address) => {
-    const response = await api.get(`/nonce/${address}`)
+    const response = await api.post('/auth/nonce', { address })
     return response.data
   },
 }

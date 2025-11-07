@@ -10,6 +10,7 @@ const clipsRouter = require('./routes/clips');
 const relayerRouter = require('./routes/relayer');
 const receiptsRouter = require('./routes/receipts');
 const authRouter = require('./routes/auth');
+const adminRouter = require('./routes/admin');
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/api/clips', clipsRouter);
 app.use('/api/relayer', relayerRouter);
 app.use('/api/receipts', receiptsRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 app.get('/health', (req, res) => {
   res.json({ 

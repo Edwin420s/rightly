@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { ShoppingCart, Zap, Shield, AlertCircle } from 'lucide-react'
-import { formatUSX, parseUSX, getSigner } from '../utils/wallet'
+import { formatUSX, parseUSX, getSigner, getProvider } from '../utils/wallet'
 import { apiClient } from '../utils/api'
+import { CONTRACT_ADDRESS } from '../utils/constants'
 
 const BuyClipWidget = ({ clip, onPurchaseComplete }) => {
   const { account, isConnected } = useApp()
@@ -41,24 +42,41 @@ const BuyClipWidget = ({ clip, onPurchaseComplete }) => {
 
       // Prepare EIP-712 signature data
       const deadline = Math.floor(Date.now() / 1000) + 600 // 10 minutes
-      const message = {
+      const signer = await getSigner()
+      const provider = getProvider()
+      const network = await provider.getNetwork()
+
+      const domain = {
+        name: 'Rightly ClipLicense',
+        version: '1',
+        chainId: Number(network.chainId),
+        verifyingContract: CONTRACT_ADDRESS,
+      }
+
+      const types = {
+        BuyIntent: [
+          { name: 'clipId', type: 'uint256' },
+          { name: 'buyer', type: 'address' },
+          { name: 'price', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      }
+
+      const value = {
         clipId: clip.onchainClipId || clip.id,
         buyer: account,
         price: clip.price,
-        nonce: nonce,
-        deadline: deadline
+        nonce,
+        deadline,
       }
 
-      const signer = await getSigner()
-      
-      // In a real implementation, we would use _signTypedData
-      // For demo, we'll use a simple signature
-      const signature = await signer.signMessage(JSON.stringify(message))
+      const signature = await signer.signTypedData(domain, types, value)
 
       // Submit to relayer
       const result = await apiClient.submitBuyIntent({
-        ...message,
-        signature
+        ...value,
+        signature,
       })
 
       if (onPurchaseComplete) {
@@ -66,7 +84,7 @@ const BuyClipWidget = ({ clip, onPurchaseComplete }) => {
       }
 
     } catch (error) {
-      throw new Error('Gasless purchase failed: ' + error.message)
+      throw new Error('Gasless purchase failed: ' + (error?.message || 'Unknown error'))
     }
   }
 

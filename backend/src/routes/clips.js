@@ -1,5 +1,6 @@
 const express = require('express');
 const Clip = require('../models/Clip');
+const ipfs = require('../services/ipfs');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -51,6 +52,22 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching clip:', error);
     res.status(500).json({ error: 'Failed to fetch clip' });
+  }
+});
+
+// Pin file to IPFS (base64) and return CID
+router.post('/pin', async (req, res) => {
+  try {
+    const { filename, dataBase64 } = req.body;
+    if (!dataBase64) {
+      return res.status(400).json({ error: 'dataBase64 is required' });
+    }
+    const buf = Buffer.from(dataBase64, 'base64');
+    const cid = await ipfs.pinFile(buf, filename || `clip-${Date.now()}`);
+    res.json({ cid });
+  } catch (error) {
+    console.error('Error pinning file:', error);
+    res.status(500).json({ error: 'Failed to pin file' });
   }
 });
 
