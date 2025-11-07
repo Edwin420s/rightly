@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "lint": "npx solhint 'contracts/**/*.sol'",
+    "lint:fix": "npx solhint 'contracts/**/*.sol' --fix",
+    "deploy:testnet": "npx hardhat run scripts/deploy.js --network scrollTestnet",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.js --network scrollMainnet",
+    "create-clip": "npx hardhat run scripts/create-clip.js --network localhost",
+    "create-clip:splits": "npx hardhat run scripts/create-clip-with-splits.js --network localhost",
+    "purchase-license": "npx hardhat run scripts/purchase-license.js --network localhost",
+    "gasless-purchase": "npx hardhat run scripts/gasless-purchase.js --network localhost",
+    "get-clip-info": "npx hardhat run scripts/get-clip-info.js --network localhost",
+    "test:gas": "REPORT_GAS=true npx hardhat test",
+    "size": "npx hardhat size-contracts"
+  }
+}
