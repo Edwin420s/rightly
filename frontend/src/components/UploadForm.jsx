@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { Upload, X, Plus, Minus } from 'lucide-react'
-import { LICENSE_DURATIONS, LICENSE_TYPES } from '../utils/constants'
-import { parseUSX } from '../utils/wallet'
+import { LICENSE_DURATIONS, LICENSE_TYPES, CONTRACT_ADDRESS } from '../utils/constants'
+import { parseUSX, getSigner } from '../utils/wallet'
 import { apiClient } from '../utils/api'
+import { ethers } from 'ethers'
 
 const UploadForm = () => {
   const { account } = useApp()
@@ -51,22 +52,54 @@ const UploadForm = () => {
 
     setIsUploading(true)
     try {
-      // In a real implementation, you would:
-      // 1. Upload file to IPFS via backend
-      // 2. Get back assetCID
-      // 3. Create clip on-chain and off-chain
-      
-      const clipData = {
-        ...formData,
-        creator: account,
-        price: parseUSX(formData.price).toString(),
-        splits: formData.splits.filter(split => split.address && split.bps > 0)
-      }
+      // 1) Pin file to IPFS via backend
+      const arrayBuffer = await file.arrayBuffer()
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+      const { cid: assetCID } = await apiClient.pinClip({ filename: file.name, dataBase64: base64 })
 
-      // This would be the actual API call
-      // await apiClient.createClip(clipData)
-      
-      console.log('Uploading clip:', clipData)
+      // 2) Call on-chain createClip
+      const signer = await getSigner()
+      const clipLicenseAbi = [
+        "function createClip(string assetCID, uint256 price, uint32 durationDays, address[] splits, uint16[] splitBps) external returns (uint256 clipId)"
+      ]
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, clipLicenseAbi, signer)
+
+      const priceWei = parseUSX(formData.price)
+      const duration = parseInt(formData.durationDays, 10)
+      const splitsFiltered = formData.splits.filter(s => s.address && Number(s.bps) > 0)
+      const splitAddrs = splitsFiltered.map(s => s.address)
+      const splitBps = splitsFiltered.map(s => parseInt(s.bps, 10))
+
+      const tx = await contract.createClip(assetCID, priceWei, duration, splitAddrs, splitBps)
+      const receipt = await tx.wait()
+
+      // Try to extract clipId from events (optional fallback sets undefined)
+      let onchainClipId
+      try {
+        const iface = new ethers.Interface(clipLicenseAbi.concat(["event ClipCreated(uint256 clipId, address creator, uint256 price, uint32 durationDays, string assetCID)"]))
+        for (const log of receipt.logs) {
+          try {
+            const parsed = iface.parseLog(log)
+            if (parsed && parsed.name === 'ClipCreated') {
+              onchainClipId = Number(parsed.args.clipId.toString())
+              break
+            }
+          } catch (_) {}
+        }
+      } catch (_) {}
+
+      // 3) Create off-chain record
+      const clipData = {
+        title: formData.title,
+        description: formData.description,
+        price: priceWei.toString(),
+        durationDays: duration,
+        creator: account,
+        assetCID,
+        splits: splitsFiltered,
+        ...(onchainClipId ? { onchainClipId } : {})
+      }
+      await apiClient.createClip(clipData)
       
       // Reset form after successful upload
       setFormData({
@@ -80,7 +113,7 @@ const UploadForm = () => {
       setFile(null)
       setPreviewUrl('')
       
-      alert('Clip uploaded successfully!')
+      alert('Clip created on-chain and published!')
       
     } catch (error) {
       console.error('Upload failed:', error)

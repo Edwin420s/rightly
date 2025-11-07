@@ -24,8 +24,11 @@ router.post('/buy', async (req, res) => {
 
     const updated = await Nonce.findOneAndUpdate(
       { address: buyer, nonce: nonce },
-      { $inc: { nonce: 1 } },
-      { upsert: true, new: true }
+      { 
+        $setOnInsert: { address: buyer, nonce: 0 },
+        $inc: { nonce: 1 }
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
     if (!updated || updated.nonce !== nonce + 1) {

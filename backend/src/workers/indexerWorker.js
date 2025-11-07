@@ -7,7 +7,7 @@ const Clip = require('../models/Clip');
 const logger = require('../utils/logger');
 const { ethers } = require('ethers');
 
-const worker = new Worker('indexerWorker', async (job) => {
+const worker = new Worker('indexerQueue', async (job) => {
   try {
     const { licenseId, clipId, buyer, startTs, expiryTs, amount, receiptHash } = job.data;
 
