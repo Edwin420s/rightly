@@ -4,7 +4,7 @@ Rightly is an on‑chain marketplace for short, time‑bounded licenses (e.g., 1
 
 Built for Scroll zkEVM. Wallet‑based login (Core/MetaMask), optional gasless checkout (EIP‑712 intent + relayer), and IPFS‑pinned signed receipts.
 
-## Quick Start
+## Quick Start 
 - **Contracts**
   - `cd contracts && npm i && npx hardhat compile`
   - Deploy (Scroll Sepolia): `npx hardhat run scripts/deploy.js --network scrollTestnet`
