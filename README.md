@@ -10,7 +10,7 @@ Built for Scroll zkEVM. Wallet‑based login (Core/MetaMask), optional gasless c
   - Deploy (Scroll Sepolia): `npx hardhat run scripts/deploy.js --network scrollTestnet`
   - Copy addresses to backend/frontend `.env`
 - **Backend**
-  - `cd backend && npm i`
+  - `cd backend && npm i` 
   - Start MongoDB + Redis
   - `npm run dev` → `http://localhost:4000/health`
 - **Frontend**
