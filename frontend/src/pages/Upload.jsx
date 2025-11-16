@@ -2,7 +2,7 @@ import React from 'react'
 import { useApp } from '../context/AppContext'
 import UploadForm from '../components/UploadForm'
 import { Navigate } from 'react-router-dom'
-import { Upload, Shield, DollarSign, Users } from 'lucide-react'
+import { Upload as UploadIcon, Shield, DollarSign, Users } from 'lucide-react'
 
 const Upload = () => {
   const { isConnected } = useApp()
@@ -13,7 +13,7 @@ const Upload = () => {
 
   const steps = [
     {
-      icon: <Upload className="h-6 w-6" />,
+      icon: <UploadIcon className="h-6 w-6" />,
       title: 'Upload Your Clip',
       description: 'Upload your short-form video, audio, or visual content'
     },
