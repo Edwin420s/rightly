@@ -1,4 +1,4 @@
-# Rightly — On‑chain Micro‑Licensing for Short‑Form Content
+# Rightly On‑chain Micro‑Licensing for Short‑Form Content
 
 Rightly is an on‑chain marketplace for short, time‑bounded licenses (e.g., 1–7 days) covering clips, loops, beats, and short videos. Buyers get verifiable proof of license on Scroll; creators receive instant USX settlement with automatic collaborator splits.
 
