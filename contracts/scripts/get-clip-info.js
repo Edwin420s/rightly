@@ -7,7 +7,7 @@ async function main() {
   
   console.log(`Getting info for clip ID: ${clipId}`);
   
-  // Load deployment info
+  // Load deployment info 
   const deploymentsDir = path.join(__dirname, "../deployments");
   const deploymentFiles = fs.readdirSync(deploymentsDir);
   const latestDeployment = deploymentFiles
