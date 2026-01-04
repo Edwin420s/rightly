@@ -5,7 +5,7 @@ const { loadFixture } = require("@nomicfoundation/hardhat-toolbox/network-helper
 describe("ClipLicense", function () {
   async function deployContractsFixture() {
     const [owner, creator, buyer, collaborator1, collaborator2, platform] = await ethers.getSigners();
-
+ 
     // Deploy MockUSX
     const MockUSX = await ethers.getContractFactory("MockUSX");
     const mockUSX = await MockUSX.deploy(18);
